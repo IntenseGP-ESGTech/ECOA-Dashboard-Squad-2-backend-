@@ -38,7 +38,11 @@ e visualização de indicadores ESG (Ambientais, Sociais e de Governança).
 git clone https://github.com/IntenseGP-ESGTech/ECOA-Dashboard---Squad-2.git
 cd ECOA-Dashboard---Squad-2
 
+
+
 -___________________________________________________________________________________________________________________________________________-
+
+
 
 # ECOA Backend Auth - Squad 2
 
