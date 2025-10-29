@@ -11,7 +11,9 @@ Currently, two official plugins are available:
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
 
+
 -___________________________________________________________________________________________________________________________________________-
+
 
 # ECOA Dashboard - Squad 2
 
@@ -37,11 +39,9 @@ e visualização de indicadores ESG (Ambientais, Sociais e de Governança).
 ```bash
 git clone https://github.com/IntenseGP-ESGTech/ECOA-Dashboard---Squad-2.git
 cd ECOA-Dashboard---Squad-2
-
-
+```
 
 -___________________________________________________________________________________________________________________________________________-
-
 
 
 # ECOA Backend Auth - Squad 2
@@ -54,7 +54,7 @@ Backend de autenticação em Node.js vanilla (sem frameworks) com PostgreSQL, JW
 
 ## Configuração
 1. Copie as variáveis de ambiente (crie um arquivo `.env` na pasta `backend-auth`):
-```
+```bash
 PORT=3001
 CORS_ORIGIN=http://localhost:5173
 
@@ -68,17 +68,17 @@ JWT_SECRET=dev_secret_change_me
 ```
 
 2. Instale dependências:
-```
+```bash
 npm install
 ```
 
 3. Crie a tabela no PostgreSQL:
-```
+```bash
 psql -h localhost -U postgres -d ecoa -f sql/schema.sql
 ```
 
 4. Inicie o servidor:
-```
+```bash
 npm run dev
 ```
 
