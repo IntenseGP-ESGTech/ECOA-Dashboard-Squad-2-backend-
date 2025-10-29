@@ -26,7 +26,7 @@ JWT_SECRET=dev_secret_change_me
 npm install
 ```
 
-3. Crie a tabela ecoa no PostgreSQL:
+3. Crie a tabela users no banco de dados ecoa do PostgreSQL:
 ```
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
