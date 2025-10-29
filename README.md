@@ -72,9 +72,17 @@ JWT_SECRET=dev_secret_change_me
 npm install
 ```
 
-3. Crie a tabela no PostgreSQL:
+3. Crie a tabela users no banco de dados ecoa do PostgreSQL:
 ```bash
-psql -h localhost -U postgres -d ecoa -f sql/schema.sql
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    tipo VARCHAR(50) NOT NULL,
+    dados_especificos JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
 ```
 
 4. Inicie o servidor:
