@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const axios = require('axios');
 const { query } = require('../db');
 const { parseJsonBody } = require('../utils/body');
 const { addToBlacklist } = require('../middleware/auth');
@@ -83,6 +84,69 @@ async function handleLogin(req, res) {
   }
 }
 
+async function handleGoogleLogin(req, res) {
+  try {
+    const body = await parseJsonBody(req);
+    const { token: accessToken } = body || {}; // O token que o frontend enviou
+    if (!accessToken) {
+      return sendJson(res, 400, { message: 'Token de acesso não fornecido' });
+    }
+
+    // 1. Trocar o Access Token por dados do usuário (Server-to-Server Call)
+    const googleResponse = await axios.get(
+      'https://www.googleapis.com/oauth2/v3/userinfo',
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    const googleUser = googleResponse.data;
+    const email = googleUser.email;
+
+    if (!email) {
+      return sendJson(res, 401, { message: 'Não foi possível obter o e-mail do Google' });
+    }
+
+    // 2. Verificar/Criar Usuário no seu Banco de Dados (PostgreSQL)
+    let result = await query('SELECT * FROM users WHERE email = $1', [email]);
+    let user;
+
+    if (result.rowCount === 0) {
+      const defaultTipo = 'funcionario';
+      const defaultPasswordHash = ''; // Não armazena senha para login social
+
+      const dadosEspecificosJson = JSON.stringify({
+        nome: googleUser.name,
+        picture: googleUser.picture,
+        completo: false
+      });
+
+      const insert = await query(
+        `INSERT INTO users (email, password_hash, tipo, dados_especificos) VALUES ($1, $2, $3, $4) RETURNING id, email, tipo, dados_especificos, created_at, updated_at`,
+        [email, defaultPasswordHash, defaultTipo, dadosEspecificosJson]
+      );
+      user = insert.rows[0];
+    } else {
+      // Usuário existe
+      user = result.rows[0];
+    }
+
+    // 3. Gerar JWT de Sessão Interna
+    const payload = { id: user.id, email: user.email, tipo: user.tipo };
+    const token = jwt.sign(payload, process.env.JWT_SECRET || 'dev_secret', { expiresIn: '1h' });
+
+    // 4. Retornar o token e os dados do usuário para o frontend
+    return sendJson(res, 200, { token, user: sanitizeUser(user) });
+
+  } catch (err) {
+    // O log de erro agora é essencial para a depuração!
+    console.error('Google Login Error DETALHADO:', err.message);
+    return sendJson(res, 401, { message: 'Falha na autenticação via Google.' });
+  }
+}
+
 async function handleMe(req, res) {
   try {
     const userId = req.user?.id;
@@ -118,6 +182,7 @@ async function handleLogout(req, res) {
 module.exports = {
   handleRegister,
   handleLogin,
+  handleGoogleLogin,
   handleMe,
   handleLogout,
 };

@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
-const { handleRegister, handleLogin, handleMe, handleLogout } = require('./src/handlers/auth');
+const { handleRegister, handleLogin, handleMe, handleLogout, handleGoogleLogin } = require('./src/handlers/auth');
 const { authMiddleware } = require('./src/middleware/auth');
 
 const PORT = process.env.PORT || 3001;
@@ -66,6 +66,11 @@ const server = http.createServer(async (req, res) => {
     await handleLogin(req, res);
     return;
   }
+
+  if (pathname === '/auth/google' && method === 'POST') {
+    await handleGoogleLogin(req, res);
+    return;
+}
   if (pathname === '/auth/me' && method === 'GET') {
     await authMiddleware(req, res, async () => {
       await handleMe(req, res);
