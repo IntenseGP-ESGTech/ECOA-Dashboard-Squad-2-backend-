@@ -85,7 +85,12 @@ CREATE TABLE users (
 );
 ```
 
-4. Inicie o servidor:
+4. Criar o Cliente OAuth2.0 na cloud de sua preferencia e coloque o CLIENTE_ID no arquivo src/main.jsx:
+```bash
+const CLIENT_ID = "[COLE SEU ID DE CLIENTE AQUI]";
+```
+
+5. Inicie o servidor:
 ```bash
 npm run dev
 ```
