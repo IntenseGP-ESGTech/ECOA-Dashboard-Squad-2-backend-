@@ -21,10 +21,11 @@ function Sair() {
       // Mesmo com erro, continuar com o logout local
     } finally {
       // Usar o contexto para fazer logout
-      logout();
       
+      logout();
+      console.log("entroiu")
       // Redirecionar para a página de login
-      navigate('/login');
+      navigate('/', { replace: true });
     }
   };
 

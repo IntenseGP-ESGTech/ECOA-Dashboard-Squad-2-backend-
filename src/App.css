@@ -10,30 +10,40 @@ body {
   overflow-x: hidden;
 }
 
+/* ---------------------------------------------------- */
+/* CONTAINER PRINCIPAL (Layout de Duas Colunas - Desktop) */
+/* ---------------------------------------------------- */
 .Container {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  width: 100%;
-  max-width: 1200px;
-  padding: 20px;
-  background-color: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
+  /* Garante o logo na esquerda e o card na direita */
+  justify-content: space-between;
+  
+  /* CORREÇÃO: Removendo gap fixo e enorme para permitir a divisão em 2 colunas */
+  width: 90%; 
+  max-width: 1200px; 
+  padding: 40px 0;
   border-radius: 10px;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
 }
 
+/* ---------------------------------------------------- */
+/* COLUNA ESQUERDA (Logo e Texto) */
+/* ---------------------------------------------------- */
 .logo-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin-bottom: 20px;
-  text-align: center;
+  /* CORREÇÃO: Alinha o conteúdo interno (Logo e Título) à esquerda */
+  align-items: flex-start;
+  
+  flex: 1; /* Permite que ocupe o espaço na esquerda */
+  max-width: 500px;
+  margin-bottom: 0; 
+  text-align: left; 
+  padding-right: 40px; /* Adiciona espaço entre esta coluna e o formulário Flip */
 }
 
 .logo {
-  width: 150px;
+  width: 250px;
   height: auto;
   margin-bottom: 20px;
 }
@@ -42,11 +52,14 @@ body {
   color: white;
   font-size: 1.2rem;
   max-width: 400px;
-  text-align: center;
+  /* CORREÇÃO: Alinha o texto à esquerda, como no design de referência */
+  text-align: left; 
   margin-bottom: 20px;
 }
 
-/* Estilos para o background */
+/* ---------------------------------------------------- */
+/* ESTILOS DE BACKGROUND */
+/* ---------------------------------------------------- */
 .app-background {
   background-image: url('./assets/background.png');
   background-size: cover;
@@ -54,9 +67,9 @@ body {
   background-repeat: no-repeat;
   background-attachment: fixed;
   min-height: 100vh;
-  width: 100vw;
+  width: 100%;
   display: flex;
-  justify-content: space-around;
+  justify-content: center; 
   align-items: center;
   position: relative;
   overflow: hidden;
@@ -69,7 +82,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(109, 20, 180, 0.7);
+  background-color: rgba(109, 20, 180, 0.6);
   z-index: 0;
 }
 
@@ -83,37 +96,29 @@ body {
   align-items: center;
 }
 
-/* Responsividade */
-@media (max-width: 768px) {
+
+@media (max-width: 992px) {
   .Container {
+    flex-direction: column; 
     width: 90%;
-    padding: 15px;
+    padding: 30px 0;
+    gap: 30px; 
   }
-  
+
+  .logo-container {
+    align-items: center; 
+    text-align: center;
+    padding-right: 0;
+    max-width: 100%;
+  }
+
+  .logo {
+    width: 180px;
+  }
+
   .title {
     font-size: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .Container {
-    width: 95%;
-    padding: 10px;
-  }
-  
-  .logo {
-    width: 120px;
-  }
-  
-  .title {
-    font-size: 0.9rem;
-    max-width: 300px;
-  }
-}
-
-/* Garantindo que o conteúdo se adapte a qualquer tamanho de tela */
-@media (min-width: 1200px) {
-  .Container {
-    max-width: 1000px;
+    max-width: 90%;
+    text-align: center; 
   }
 }

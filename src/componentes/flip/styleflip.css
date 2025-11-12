@@ -1,13 +1,13 @@
 .box {
-  background-color: #11304ccc;
-  width: 618px;
+  background-color: rgba(17, 48, 76, 0.6);
+  width: 497px;
   height: 787px;
   border-radius: 59px;
   position: relative;
   transform-style: preserve-3d;
   transition: all 0.8s ease-in-out;
   transform: rotateY(0deg);
-  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.25);
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
 }
 .front,
 .back {

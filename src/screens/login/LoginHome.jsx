@@ -1,16 +1,22 @@
+// Arquivo: src/screens/login/LoginHome.jsx (CORRIGIDO)
+
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // <-- NOVIDADE: Para forçar o redirecionamento
 import "./Login.css";
 import Botao from "../../componentes/botao/Botao";
 import { FaUser, FaLock } from "react-icons/fa";
 import { authenticate } from "./auth";
+import { useAuth } from "../../contexts/AuthContext"; // <-- NOVIDADE: Para atualizar o estado global
 
-const LoginHome = ({ setIsAuthenticated }) => {
+const LoginHome = () => { // Não recebe mais 'setIsAuthenticated' como prop
+  const { login } = useAuth(); // Obtém a função de login do contexto
   const [credentials, setCredentials] = useState({
     email: "",
     password: "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); // Inicializa o hook de navegação
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,9 +44,8 @@ const LoginHome = ({ setIsAuthenticated }) => {
         credentials.password
       );
       if (authResult.success) {
-        setIsAuthenticated(true); // Atualiza o estado no App
-        // Não navega aqui, apenas atualiza o estado
-        // O App.jsx vai redirecionar automaticamente
+        login();// 1. Chama a função do AuthContext
+        navigate("/dashboard", { replace: true });// 2. Redireciona para o Dashboard
       } else {
         setError(authResult.message || "Credenciais inválidas. Por favor, tente novamente.");
       }

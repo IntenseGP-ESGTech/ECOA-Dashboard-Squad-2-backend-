@@ -34,7 +34,7 @@ class ApiClient {
       // Se token expirou ou é inválido, redirecionar para login
       if (response.status === 401) {
         localStorage.removeItem('authToken');
-        window.location.href = '/login';
+        //window.location.href = '/login';
         return;
       }
 
