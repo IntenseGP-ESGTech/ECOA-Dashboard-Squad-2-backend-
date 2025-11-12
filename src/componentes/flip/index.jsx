@@ -1,15 +1,76 @@
-// Arquivo: src/componentes/flip/index.jsx (Atualizado)
-
 import React, { useState } from "react";
 import "./styleflip.css";
 import Botao from "../botao/Botao";
 import LoginHome from "../../screens/login/LoginHome";
 import Cadastro from "../../screens/cadastro/Cadastro";
-//import { useAuth } from "../../contexts/AuthContext";
+// 1. Importar o hook useGoogleLogin
+import { useGoogleLogin } from '@react-oauth/google';
+// ⬅️ NOVO: Importar o useAuth e useNavigate
+import { useAuth } from "../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+
 
 function Flip() {
-  //const { login } = useAuth(); 
+  const { login } = useAuth();
+  const navigate = useNavigate();
   const [isFlipped, setIsFlipped] = useState(false);
+
+  // 2. Funções de Callback
+  const googleSuccess = (response) => {
+    // O Access Token (não o ID token) é recebido aqui:
+    const accessToken = response.access_token;
+
+    console.log("Token de Acesso do Google recebido. Enviando para o backend...");
+
+    // Chamar a função que envia o token para o backend
+    handleBackendLogin(accessToken);
+  };
+
+  const handleBackendLogin = async (accessToken) => {
+    const backendUrl = 'http://localhost:3001/auth/google';
+
+    try {
+      const response = await fetch(backendUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token: accessToken }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("Login SUCESSO. Dados de Sessão obtidos do backend.");
+
+        login();
+
+        localStorage.setItem('authToken', data.token);
+
+        navigate('/dashboard', { replace: true });
+
+      } else {
+        console.error("Falha na autenticação do backend:", data.message);
+        alert("Erro ao criar a sessão. Tente novamente.");
+      }
+    } catch (error) {
+      console.error("Erro na comunicação com o backend:", error);
+      alert("Erro ao criar a sessão. Tente novamente.");
+    }
+  };
+
+  const googleError = () => {
+    console.log("Login Google Falhou");
+    alert("Erro ao criar a sessão. Tente novamente.");
+  };
+
+  // 3. Inicializa o hook de login
+  const loginGoogle = useGoogleLogin({
+    onSuccess: googleSuccess,
+    onError: googleError,
+    flow: 'implicit',
+    scope: 'email profile',
+  });
 
   return (
     <div
@@ -22,7 +83,6 @@ function Flip() {
           <h3>Crie sua conta, leva menos de um minuto ! </h3>
         </div>
 
-        {/* CORREÇÃO: Removendo a prop, pois LoginHome deve usar useAuth internamente */}
         <LoginHome />
 
         <div className="links">
@@ -30,21 +90,31 @@ function Flip() {
             <Botao nome="Cadastrar-se" />
           </div>
         </div>
+
+        {/* Aplicação do Login no Front */}
         <div className="links">
           <p> Faça login com </p>
-          <a href="https://accounts.google.com/v3/signin/identifier?continue=https%3A%2F%2Fwww.google.com%2Fwebhp%3Fhl%3Dpt-BR%26sa%3DX%26ved%3D0ahUKEwjg2I3cotONAxXdExAIHXtONRoQPAgJ&ec=futura_exp_og_so_72776762_e&hl=pt-BR&ifkv=AdBytiP27OkCLHw4d-G9GZKVCqNXt5LBEk1yrsckBYHRPZbscAcmoomvU1K8mcrlCVlZ868CiVZy&passive=true&flowName=GlifWebSignIn&flowEntry=ServiceLogin&dsh=S2030322199%3A1748888327008065">
-            <img src="/assets/google.png" alt="" />
-          </a>
+          <img
+            src="/assets/google.png"
+            alt="Login com Google"
+            onClick={loginGoogle}
+            style={{ cursor: 'pointer' }}
+          />
         </div>
       </div>
 
       <div className="back">
         <Cadastro />
+
+        {/* Aplicação do Login no Back */}
         <div className="links">
           <p> Faça login com </p>
-          <a href="https://accounts.google.com/v3/signin/identifier?continue=https%3A%2F%2Fwww.google.com%2Fwebhp%3Fhl%3Dpt-BR%26sa%3DX%26ved%3D0ahUKEwjg2I3cotONAxXdExAIHXtONRoQPAgJ&ec=futura_exp_og_so_72776762_e&hl=pt-BR&ifkv=AdBytiP27OkCLHw4d-G9GZKVCqNXt5LBEk1yrsckBYHRPZbscAcmoomvU1K8mcrlCVlZ868CiVZy&passive=true&flowName=GlifWebSignIn&flowEntry=ServiceLogin&dsh=S2030322199%3A1748888327008065">
-            <img src="/assets/google.png" alt="" />
-          </a>
+          <img
+            src="/assets/google.png"
+            alt="Login com Google"
+            onClick={loginGoogle}
+            style={{ cursor: 'pointer' }}
+          />
         </div>
         <div className="text-link" onClick={() => setIsFlipped(false)}>
           <Botao

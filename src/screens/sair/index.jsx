@@ -1,30 +1,27 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { LogOut, ArrowLeft, AlertTriangle } from "lucide-react";
+// Remover importação de apiClient, pois a lógica de chamada ao backend será feita no contexto.
 import apiClient from '../../utils/api.js';
 import { useAuth } from '../../contexts/AuthContext';
 import './sair.css';
 
 function Sair() {
   const { logout } = useAuth();
+
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     setLoading(true);
-    
+
     try {
-      // Fazer logout no backend
       await apiClient.logout();
+      console.log("Logout iniciado via contexto.");
     } catch (error) {
-      console.error("Erro no logout:", error);
-      // Mesmo com erro, continuar com o logout local
+      console.error("Erro ao completar o logout (pode ser problema de rede):", error);
     } finally {
-      // Usar o contexto para fazer logout
-      
       logout();
-      console.log("entroiu")
-      // Redirecionar para a página de login
       navigate('/', { replace: true });
     }
   };
@@ -40,9 +37,9 @@ function Sair() {
           <div className="sair-icon">
             <AlertTriangle size={80} color="#dc3545" />
           </div>
-          
+
           <h2>Tem certeza que deseja sair?</h2>
-          
+
           <p className="sair-message">
             Você será desconectado do sistema e precisará fazer login novamente para acessar o dashboard.
           </p>
@@ -53,7 +50,7 @@ function Sair() {
                 <ArrowLeft size={16} /> Cancelar
               </button>
             </Link>
-            <button 
+            <button
               className="sair-button confirm-button"
               onClick={handleLogout}
               disabled={loading}

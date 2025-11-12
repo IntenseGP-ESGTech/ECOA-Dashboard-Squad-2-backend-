@@ -15,7 +15,7 @@ import TeamManagement from "../src/screens/team_management";
 import ProjectStatus from "../src/screens/project_status";
 import DashboardGraphs from "../src/screens/dashboard_graphs";
 import MinhaConta from "../src/screens/minha_conta";
-// Academy page removed as requested
+
 import Questionario from "../src/screens/questionario";
 import QuestionarioSocial from "../src/screens/questionario/social";
 import QuestionarioMeioAmbiente from "../src/screens/questionario/meio-ambiente";
@@ -119,8 +119,8 @@ function AppContent() {
                 isAuthenticated ? <MinhaConta /> : <Navigate to="/login" replace />
               }
             />
+
             
-            {/* Academy route removed and replaced with external link in dashboard navigation */}
             
             <Route
               path="/questionario"

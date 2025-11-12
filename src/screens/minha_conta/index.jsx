@@ -25,7 +25,6 @@ function MinhaConta() {
       const response = await apiClient.getMe();
       const user = response.user;
       
-      // Mapear dados específicos baseado no tipo de usuário
       let nome = "";
       let cargo = "";
       let departamento = "";
@@ -82,7 +81,6 @@ function MinhaConta() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Aqui você pode implementar uma atualização de perfil se necessário
       alert("Perfil atualizado com sucesso!");
     } catch (error) {
       alert("Erro ao atualizar perfil");
