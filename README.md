@@ -72,7 +72,7 @@ JWT_SECRET=dev_secret_change_me
 npm install
 ```
 
-3. Crie a tabela users no banco de dados ecoa do PostgreSQL:
+3.1 Crie a tabela users no banco de dados ecoa do PostgreSQL:
 ```bash
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
@@ -82,6 +82,30 @@ CREATE TABLE users (
     dados_especificos JSONB,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+3.2 Crie a tabela esg_plans no banco de dados ecoa do PostgreSQL:
+```bash
+CREATE TABLE IF NOT EXISTS esg_plans (
+    id SERIAL PRIMARY KEY,
+    codigo VARCHAR(50) UNIQUE NOT NULL, -- Ex: PLA-001
+    nome VARCHAR(100) NOT NULL,
+    descricao TEXT,
+    status VARCHAR(20) CHECK (status IN ('Pendente', 'Em Andamento', 'Concluído')) DEFAULT 'Pendente',
+    responsavel_id INTEGER REFERENCES users(id), -- Vincula ao ID do usuário
+    data_conclusao DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+3.3 Crie a tabela plan_collaborators no banco de dados ecoa do PostgreSQL:
+```bash
+CREATE TABLE IF NOT EXISTS plan_collaborators (
+    plan_id INTEGER REFERENCES esg_plans(id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    PRIMARY KEY (plan_id, user_id)
 );
 ```
 
