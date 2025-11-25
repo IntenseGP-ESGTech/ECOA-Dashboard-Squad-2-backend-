@@ -1,16 +1,23 @@
 openapi: 3.0.3
 info:
   title: ECOA Auth & Plans API
-  version: 1.0.0
-  description: API de autenticação e gestão de Planos ESG (Node.js puro)
+  version: 1.1.0
+  description: API de autenticação, gestão de Planos ESG e Colaboradores.
 servers:
   - url: http://localhost:3001
+tags:
+  - name: Autenticação
+    description: Rotas de login e registro
+  - name: Planos ESG
+    description: CRUD de planos de ação
+  - name: Colaboradores
+    description: Gestão de equipe nos planos
+
 paths:
   /auth/register:
     post:
       summary: Registrar novo usuário
-      tags:
-        - Autenticação
+      tags: [Autenticação]
       requestBody:
         required: true
         content:
@@ -30,16 +37,16 @@ paths:
                   type: object
       responses:
         '201':
-          description: Criado
+          description: Criado com sucesso
         '400':
-          description: Requisição inválida
+          description: Dados inválidos
         '409':
           description: Email já cadastrado
+
   /auth/login:
     post:
-      summary: Login
-      tags:
-        - Autenticação
+      summary: Realizar Login
+      tags: [Autenticação]
       requestBody:
         required: true
         content:
@@ -54,45 +61,62 @@ paths:
                   type: string
       responses:
         '200':
-          description: OK
+          description: Login realizado (retorna Token)
         '401':
           description: Credenciais inválidas
+
+  /auth/google:
+    post:
+      summary: Login social via Google
+      tags: [Autenticação]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: Token recebido do Google
+      responses:
+        '200':
+          description: Sucesso
+        '401':
+          description: Falha na autenticação
+
   /auth/me:
     get:
       summary: Dados do usuário logado
-      tags:
-        - Autenticação
+      tags: [Autenticação]
       security:
         - bearerAuth: []
       responses:
         '200':
-          description: OK
+          description: Dados do usuário recuperados
         '401':
-          description: Não autorizado
+          description: Token inválido ou expirado
+
   /auth/logout:
     post:
-      summary: Logout (invalidar token atual)
-      tags:
-        - Autenticação
+      summary: Invalidar token atual
+      tags: [Autenticação]
       security:
         - bearerAuth: []
       responses:
         '200':
-          description: OK
-        '401':
-          description: Não autorizado
+          description: Logout efetuado
 
-  # ROTAS DE PLANOS DE ACAO
   /plans:
     get:
-      summary: Listar todos os Planos de Ação
-      tags:
-        - Planos ESG
+      summary: Listar todos os Planos
+      description: Retorna planos onde o usuário é dono ou colaborador.
+      tags: [Planos ESG]
       security:
         - bearerAuth: []
       responses:
         '200':
-          description: Lista recuperada com sucesso
+          description: Lista de planos
           content:
             application/json:
               schema:
@@ -100,9 +124,8 @@ paths:
                 items:
                   $ref: '#/components/schemas/Plan'
     post:
-      summary: Criar um novo Plano de Ação
-      tags:
-        - Planos ESG
+      summary: Criar um novo Plano
+      tags: [Planos ESG]
       security:
         - bearerAuth: []
       requestBody:
@@ -116,27 +139,27 @@ paths:
                 codigo:
                   type: string
                   example: PLA-001
-                  description: Identificador único e sequencial
                 nome:
                   type: string
                   example: Redução de Carbono
-                  description: Nome curto do objetivo
                 descricao:
                   type: string
-                  description: Explicação detalhada do plano
                 status:
                   type: string
                   enum: [Pendente, Em Andamento, Concluído]
-                  default: Pendente
                 data_conclusao:
                   type: string
                   format: date
-                  example: 2024-12-31
+                collaborators:
+                  type: array
+                  description: Lista opcional de emails para adicionar na criação
+                  items:
+                    type: string
       responses:
         '201':
-          description: Plano criado com sucesso
+          description: Plano criado
         '409':
-          description: Código do plano já existe
+          description: Código já existe
 
   /plans/{id}:
     parameters:
@@ -145,16 +168,15 @@ paths:
         schema:
           type: integer
         required: true
-        description: ID numérico do plano
+        description: ID do plano
     get:
-      summary: Obter detalhes de um plano específico
-      tags:
-        - Planos ESG
+      summary: Detalhes de um plano
+      tags: [Planos ESG]
       security:
         - bearerAuth: []
       responses:
         '200':
-          description: Dados do plano
+          description: Detalhes recuperados
           content:
             application/json:
               schema:
@@ -162,41 +184,81 @@ paths:
         '404':
           description: Plano não encontrado
     put:
-      summary: Atualizar um plano existente
-      tags:
-        - Planos ESG
+      summary: Atualizar um plano
+      tags: [Planos ESG]
       security:
         - bearerAuth: []
       requestBody:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                nome:
-                  type: string
-                descricao:
-                  type: string
-                status:
-                  type: string
-                  enum: [Pendente, Em Andamento, Concluído]
-                data_conclusao:
-                  type: string
-                  format: date
+              $ref: '#/components/schemas/PlanInput'
       responses:
         '200':
-          description: Plano atualizado com sucesso
+          description: Plano atualizado
+        '403':
+          description: Sem permissão (não é dono nem colaborador)
     delete:
       summary: Excluir um plano
-      tags:
-        - Planos ESG
+      tags: [Planos ESG]
       security:
         - bearerAuth: []
       responses:
         '200':
-          description: Plano removido com sucesso
+          description: Plano removido
+        '403':
+          description: Sem permissão (apenas Dono pode excluir)
+
+  /plans/{id}/collaborators:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+    post:
+      summary: Adicionar Colaborador
+      description: Apenas o dono do plano pode adicionar.
+      tags: [Colaboradores]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: "colega@empresa.com"
+      responses:
+        '201':
+          description: Colaborador adicionado
+        '403':
+          description: Apenas o criador do plano pode adicionar membros
         '404':
-          description: Plano não encontrado
+          description: Usuário ou Plano não encontrado
+    delete:
+      summary: Remover Colaborador
+      description: Apenas o dono do plano pode remover.
+      tags: [Colaboradores]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+      responses:
+        '200':
+          description: Colaborador removido
+        '403':
+          description: Apenas o criador pode remover membros
 
 components:
   securitySchemes:
@@ -205,6 +267,19 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
+    PlanInput:
+      type: object
+      properties:
+        nome:
+          type: string
+        descricao:
+          type: string
+        status:
+          type: string
+        data_conclusao:
+          type: string
+          format: date
+    
     Plan:
       type: object
       properties:
@@ -218,11 +293,21 @@ components:
           type: string
         status:
           type: string
-        responsavel_id:
-          type: integer
         data_conclusao:
           type: string
           format: date
-        created_at:
+        responsavel_id:
+          type: integer
+        responsavel_email:
           type: string
-          format: date-time
+          description: Email do dono do plano
+        collaborators_data:
+          type: array
+          description: Lista de colaboradores
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              email:
+                type: string
